@@ -57,27 +57,10 @@
     .settings-box label { display: block; margin-top: 1rem; }
     .settings-box input[type="checkbox"] { margin-right: 0.5rem; }
     .settings-close { position: absolute; top: 0.5rem; right: 0.75rem; background: none; border: none; font-size: 1.5rem; color: #f5c518; cursor: pointer; }
-
-    <style>
-  /* simple skeleton style */
-  .skeleton { background: linear-gradient(90deg, #444 25%, #555 50%, #444 75%); background-size: 200% 100%; animation: shine 1.2s infinite; color: transparent !important; }
-  @keyframes shine { to { background-position: -200% 0; } }
-
-  .skeleton-card { width: 160px; height: 240px; border-radius: 0.5rem; margin: 0.5rem; }
-
-  .error { background: #333; color: #f66; display: flex; align-items: center; justify-content: center; }
-
-  .error-state { text-align: center; color: #f66; padding: 1rem; }
-  .error-state button { margin-top: 0.5rem; padding: 0.4rem 0.8rem; cursor: pointer; }
-</style>
-
   </style>
 </head>
 <body class="dark">
-    <script src="adblocker.js" defer></script>
-    <!-- register enhancements (lazy-load, skeletons, error UI, SW) -->
-    <script src="enhancements.js" defer></script>
-
+   <script src="adblocker.js" defer></script>
   <header>
     <div class="logo">ChrisTube</div>
     <nav>
@@ -149,19 +132,12 @@
       }
     });
 
-  function loadItems() {
-    const url = `https://api.themoviedb.org/3/trending/${currentType}/week?api_key=${apiKey}&page=${currentPage}`;
-    // shows skeletons, handles errors, then calls appendItems on success:
-    fetchWithUI(
-      url,
-      data => appendItems(data.results),
-      {
-        container: '#movie-grid',
-        skeletonHTML: '<div class="card skeleton-card"></div>'.repeat(8),
-        errorHTML: '<p class="error-state">Failed to load content. <button id="retry">Retry</button></p>'
-      }
-    );
-  }
+    async function loadItems() {
+      const url = `https://api.themoviedb.org/3/trending/${currentType}/week?api_key=${apiKey}&page=${currentPage}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      appendItems(data.results);
+    }
 
     function appendItems(items) {
       const grid = document.getElementById('movie-grid');
@@ -182,10 +158,7 @@
       card.className = 'card';
       card.setAttribute('data-aos', 'zoom-in');
       const img = document.createElement('img');
-      img.setAttribute('data-src', item.poster_path 
-      ? `https://image.tmdb.org/t/p/w500${item.poster_path}` 
-      : '');
-
+      img.src = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '';
       img.alt = item.title || item.name;
       const info = document.createElement('div');
       info.className = 'info';
@@ -302,6 +275,5 @@
     // Initial Load
     window.onload = () => { loadItems(); };
   </script>
-  
 </body>
 </html>
