@@ -55,9 +55,16 @@ Explore the app live: [https://csing102.github.io/ChrisTube-Movies/](https://csi
 
 ## 🎬 Embed a Batman Movie
 
-Watch **Batman Begins** right here:
+Watch **Batman Begins** right here using an HTML `<video>` tag:
 
-<iframe src="https://vidsrc.to/embed/movie/272" width="100%" height="500" allowfullscreen sandbox="allow-same-origin allow-scripts allow-presentation"></iframe>
+```html
+<video width="100%" height="500" controls>
+  <source src="https://vidsrc.to/embed/movie/272" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+```
+
+*Note: Ensure the source URL points to a direct video stream or MP4 file.*
 
 ---
 
