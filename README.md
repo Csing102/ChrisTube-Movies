@@ -53,18 +53,23 @@ Explore the app live: [https://csing102.github.io/ChrisTube-Movies/](https://csi
 
 ---
 
-## 🎬 Embed a Batman Movie
+## 🔧 How It Works
 
-Watch **Batman Begins** right here using an HTML `<video>` tag:
+### TMDB API Integration
 
-```html
-<video width="100%" height="500" controls>
-  <source src="https://vidsrc.to/embed/movie/272" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-```
+* The app uses the TMDB API to fetch trending movies and TV shows each week.
+* In `loadItems()`, it constructs a URL with your `apiKey`, `currentType` (movie or tv), and `currentPage` parameters to retrieve JSON data.
+* Movie and show details (title, poster path, seasons) are parsed and passed to `createCard()` for rendering.
+* Search suggestions leverage the TMDB `search/multi` endpoint for type-ahead results.
 
-*Note: Ensure the source URL points to a direct video stream or MP4 file.*
+### Video Embedding via Vidsrc
+
+* When a user clicks a movie poster, `openModal()` injects an `<iframe>` pointing to Vidsrc’s embed URL:
+
+  ```js
+  container.innerHTML = `<iframe src="https://vidsrc.to/embed/movie/${id}" allowfullscreen sandbox="allow-same-origin allow-scripts allow-presentation"></iframe>`;
+  ```
+* For TV shows, `openModal()` first fetches show details (seasons) from TMDB, then constructs Vidsrc episode embeds dynamically as users select seasons/episodes.
 
 ---
 
