@@ -8,8 +8,11 @@
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
   />
+
   <script src="https://kit.fontawesome.com/your-kit.js" crossorigin="anonymous"></script>
+
   <style>
+    /* Base reset & layout */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     body { font-family: sans-serif; background: #121212; color: #fff; padding-top: 60px; overflow-x: hidden; }
@@ -29,6 +32,7 @@
     .section { padding: 1rem; }
     h2 { margin-bottom: 1rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+
     .card { position: relative; cursor: pointer; overflow: hidden; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
     .card img { width: 100%; display: block; transition: transform 0.3s; }
     .card:hover img { transform: scale(1.05); }
@@ -36,6 +40,7 @@
     .card:hover .info { display: block; }
     .card .favorite { position: absolute; top: 0.5rem; right: 0.5rem; color: #e50914; font-size: 1.2rem; cursor: pointer; }
 
+    /* Modal / controls */
     .modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 1200; }
     .modal.hidden { display: none; }
     .modal-content { position: relative; width: 90%; height: 80%; }
@@ -58,25 +63,42 @@
     .settings-box input[type="checkbox"] { margin-right: 0.5rem; }
     .settings-close { position: absolute; top: 0.5rem; right: 0.75rem; background: none; border: none; font-size: 1.5rem; color: #f5c518; cursor: pointer; }
 
-    <style>
-  /* simple skeleton style */
-  .skeleton { background: linear-gradient(90deg, #444 25%, #555 50%, #444 75%); background-size: 200% 100%; animation: shine 1.2s infinite; color: transparent !important; }
-  @keyframes shine { to { background-position: -200% 0; } }
+    /* Skeleton & error states */
+    .skeleton {
+      background: linear-gradient(90deg, #444 25%, #555 50%, #444 75%);
+      background-size: 200% 100%;
+      animation: shine 1.2s infinite;
+      color: transparent !important;
+    }
+    @keyframes shine { to { background-position: -200% 0; } }
 
-  .skeleton-card { width: 160px; height: 240px; border-radius: 0.5rem; margin: 0.5rem; }
+    .skeleton-card { width: 160px; height: 240px; border-radius: 0.5rem; margin: 0.5rem; }
 
-  .error { background: #333; color: #f66; display: flex; align-items: center; justify-content: center; }
+    .error {
+      background: #333;
+      color: #f66;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  .error-state { text-align: center; color: #f66; padding: 1rem; }
-  .error-state button { margin-top: 0.5rem; padding: 0.4rem 0.8rem; cursor: pointer; }
-</style>
-
+    .error-state {
+      text-align: center;
+      color: #f66;
+      padding: 1rem;
+    }
+    .error-state button {
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+    }
   </style>
 </head>
+
 <body class="dark">
-    <script src="adblocker.js" defer></script>
-    <!-- register enhancements (lazy-load, skeletons, error UI, SW) -->
-    <script src="enhancements.js" defer></script>
+  <!-- adblocker & enhancements -->
+  <script src="adblocker.js" defer></script>
+  <script src="enhancements.js" defer></script>
 
   <header>
     <div class="logo">ChrisTube</div>
@@ -102,6 +124,7 @@
     </section>
   </main>
 
+  <!-- Video Modal -->
   <div class="modal hidden" id="video-modal">
     <div class="modal-content">
       <button class="back-btn" onclick="closeModal()">←</button>
@@ -115,6 +138,7 @@
     </div>
   </div>
 
+  <!-- Settings Modal -->
   <div class="settings-modal hidden" id="settings-modal">
     <div class="settings-box">
       <button class="settings-close" onclick="toggleSettings()">×</button>
@@ -126,6 +150,7 @@
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
   <script>
     AOS.init({ duration: 600 });
+
     const apiKey = 'b6b677eb7d4ec17f700e3d4dfc31d005';
     let currentPage = 1;
     let currentType = 'movie';
@@ -135,7 +160,7 @@
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) document.body.className = savedTheme;
     darkToggle.checked = document.body.classList.contains('light');
-    darkToggle.addEventListener('change', (e) => {
+    darkToggle.addEventListener('change', e => {
       const mode = e.target.checked ? 'light' : 'dark';
       document.body.className = mode;
       localStorage.setItem('theme', mode);
@@ -149,55 +174,58 @@
       }
     });
 
-  function loadItems() {
-    const url = `https://api.themoviedb.org/3/trending/${currentType}/week?api_key=${apiKey}&page=${currentPage}`;
-    // shows skeletons, handles errors, then calls appendItems on success:
-    fetchWithUI(
-      url,
-      data => appendItems(data.results),
-      {
-        container: '#movie-grid',
-        skeletonHTML: '<div class="card skeleton-card"></div>'.repeat(8),
-        errorHTML: '<p class="error-state">Failed to load content. <button id="retry">Retry</button></p>'
-      }
-    );
-  }
+    // Load with skeleton + error UI
+    function loadItems() {
+      const url = `https://api.themoviedb.org/3/trending/${currentType}/week?api_key=${apiKey}&page=${currentPage}`;
+      fetchWithUI(
+        url,
+        data => appendItems(data.results),
+        {
+          container: '#movie-grid',
+          skeletonHTML: '<div class="card skeleton-card"></div>'.repeat(8),
+          errorHTML: '<p class="error-state">Failed to load content. <button id="retry">Retry</button></p>'
+        }
+      );
+    }
 
     function appendItems(items) {
       const grid = document.getElementById('movie-grid');
-      items.forEach(item => {
-        grid.appendChild(createCard(item, currentType === 'tv'));
-      });
+      items.forEach(item => grid.appendChild(createCard(item, currentType === 'tv')));
       AOS.refresh();
-    }
-
-    function renderItems(items, isSeries = false) {
-      const grid = document.getElementById('movie-grid');
-      grid.innerHTML = '';
-      items.forEach(item => grid.appendChild(createCard(item, isSeries)));
     }
 
     function createCard(item, isSeries) {
       const card = document.createElement('div');
       card.className = 'card';
       card.setAttribute('data-aos', 'zoom-in');
-      const img = document.createElement('img');
-      img.setAttribute('data-src', item.poster_path 
-      ? `https://image.tmdb.org/t/p/w500${item.poster_path}` 
-      : '');
 
+      // Lazy img
+      const img = document.createElement('img');
+      img.setAttribute('data-src',
+        item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : ''
+      );
       img.alt = item.title || item.name;
+      img.classList.add('skeleton');
+      window.lazyObserver.observe(img);
+
+      // Info & favorite
       const info = document.createElement('div');
       info.className = 'info';
       info.textContent = item.title || item.name;
+
       const fav = document.createElement('i');
       fav.className = 'favorite fa-heart';
-      if (isFavorited(item.id)) fav.classList.add('fas'); else fav.classList.add('far');
-      fav.addEventListener('click', (e) => {
+      if (isFavorited(item.id)) fav.classList.add('fas');
+      else fav.classList.add('far');
+      fav.addEventListener('click', e => {
         e.stopPropagation();
         toggleFavorite(item, isSeries);
-        fav.classList.toggle('fas'); fav.classList.toggle('far');
+        fav.classList.toggle('fas');
+        fav.classList.toggle('far');
       });
+
       card.append(img, info, fav);
       card.addEventListener('click', () => openModal(item.id, isSeries));
       return card;
@@ -242,17 +270,19 @@
       const q = encodeURIComponent(searchInput.value);
       const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${q}`);
       const data = await res.json();
-      suggestions.innerHTML = data.results.slice(0,5).map(item => `<li data-id="${item.id}" data-type="${item.media_type}">${item.title||item.name}</li>`).join('');
+      suggestions.innerHTML = data.results.slice(0,5)
+        .map(item => `<li data-id="${item.id}" data-type="${item.media_type}">${item.title||item.name}</li>`)
+        .join('');
       suggestions.style.display = 'block';
     }
-    suggestions.addEventListener('click', (e) => {
+    suggestions.addEventListener('click', e => {
       if (e.target.tagName === 'LI') {
         openModal(e.target.dataset.id, e.target.dataset.type==='tv');
         suggestions.style.display = 'none';
         searchInput.value = '';
       }
     });
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', e => {
       if (!searchInput.contains(e.target)) suggestions.style.display = 'none';
     });
 
@@ -269,22 +299,28 @@
       activeContentId = id; activeIsSeries = isSeries;
       const modal = document.getElementById('video-modal');
       const container = document.getElementById('video-container');
-      container.innerHTML = isSeries ? '' : `<iframe src="https://vidsrc.to/embed/movie/${id}" allowfullscreen sandbox="allow-same-origin allow-scripts allow-presentation"></iframe>`;
+      container.innerHTML = isSeries
+        ? ''
+        : `<iframe src="https://vidsrc.to/embed/movie/${id}" allowfullscreen sandbox="allow-same-origin allow-scripts allow-presentation"></iframe>`;
       if (isSeries) {
         document.getElementById('tv-controls').classList.add('active');
         const details = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`).then(r => r.json());
-        seasonSelect.innerHTML = details.seasons.map(s=>`<option value="${s.season_number}">${s.name}</option>`).join('');
+        seasonSelect.innerHTML = details.seasons.map(s => `<option value="${s.season_number}">${s.name}</option>`).join('');
         loadEpisodes();
       }
       modal.classList.remove('hidden');
     }
     async function loadEpisodes() {
       const season = seasonSelect.value;
-      const data = await fetch(`https://api.themoviedb.org/3/tv/${activeContentId}/season/${season}?api_key=${apiKey}`).then(r=>r.json());
-      episodeList.innerHTML = data.episodes.map(e=>`<li onclick="playEpisode(${e.id})">S${season}E${e.episode_number}: ${e.name}</li>`).join('');
+      const data = await fetch(`https://api.themoviedb.org/3/tv/${activeContentId}/season/${season}?api_key=${apiKey}`)
+        .then(r => r.json());
+      episodeList.innerHTML = data.episodes
+        .map(e => `<li onclick="playEpisode(${e.id})">S${season}E${e.episode_number}: ${e.name}</li>`)
+        .join('');
     }
     function playEpisode(epId) {
-      document.getElementById('video-container').innerHTML = `<iframe src="https://vidsrc.to/embed/episode/${activeContentId}/${seasonSelect.value}/${epId}" allowfullscreen sandbox="allow-same-origin allow-scripts allow-presentation"></iframe>`;
+      document.getElementById('video-container').innerHTML =
+        `<iframe src="https://vidsrc.to/embed/episode/${activeContentId}/${seasonSelect.value}/${epId}" allowfullscreen sandbox="allow-same-origin allow-scripts allow-presentation"></iframe>`;
     }
 
     // Navigation
@@ -292,16 +328,16 @@
       a.addEventListener('click', e => {
         e.preventDefault();
         const type = a.dataset.type;
-        currentType = (type==='home'||type==='movies')?'movie': type;
+        currentType = (type==='home'||type==='movies') ? 'movie' : type;
         currentPage = 1;
         document.getElementById('section-title').textContent = type.charAt(0).toUpperCase() + type.slice(1);
-        if (type==='favorites') loadFavorites(); else loadItems();
+        if (type==='favorites') loadFavorites();
+        else loadItems();
       });
     });
 
     // Initial Load
     window.onload = () => { loadItems(); };
   </script>
-  
 </body>
 </html>
